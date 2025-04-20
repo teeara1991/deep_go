@@ -11,35 +11,80 @@ import (
 
 type CircularQueue struct {
 	values []int
-	// need to implement
+	size   int
+	front  int
+	rear   int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values: make([]int, size),
+		size:   size,
+		front:  -1,
+		rear:   -1,
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.Full() {
+		return false
+	}
+	if q.front == -1 {
+		q.front = 0
+	}
+
+	q.rear = (q.rear + 1) % q.size
+	q.values[q.rear] = value
+
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+
+	if q.front == q.rear {
+		q.front = -1
+		q.rear = -1
+	} else {
+		q.front = (q.front + 1) % q.size
+	}
+
+	return true
+
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+	return q.values[q.front]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+	return q.values[q.rear]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	if q.front == -1 {
+		return true
+	}
+	return false
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	if q.front == 0 && q.rear == q.size-1 {
+		return true
+	}
+	if q.front == q.rear+1 {
+		return true
+	}
+	return false
+
 }
 
 func TestCircularQueue(t *testing.T) {
