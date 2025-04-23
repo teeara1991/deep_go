@@ -31,10 +31,16 @@ func (b *COWBuffer) Clone() COWBuffer {
 }
 
 func (b *COWBuffer) Close() {
-	if b.refs != nil && *b.refs > 0 {
-		*b.refs--
+	if b.refs == nil {
+		return
 	}
-	b.data = nil
+
+	*b.refs--
+
+	if *b.refs == 0 {
+		b.data = nil
+	}
+
 	b.refs = nil
 }
 
