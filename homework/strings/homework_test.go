@@ -10,15 +10,18 @@ import (
 
 // go test -v homework_test.go
 
+const initRefs = 1
+
 type COWBuffer struct {
 	data []byte
 	refs *int
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
+	refs := initRefs
 	return COWBuffer{
 		data: data,
-		refs: new(int),
+		refs: &refs,
 	}
 }
 
@@ -31,17 +34,7 @@ func (b *COWBuffer) Clone() COWBuffer {
 }
 
 func (b *COWBuffer) Close() {
-	if b.refs == nil {
-		return
-	}
-
 	*b.refs--
-
-	if *b.refs == 0 {
-		b.data = nil
-	}
-
-	b.refs = nil
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
@@ -49,9 +42,12 @@ func (b *COWBuffer) Update(index int, value byte) bool {
 		return false
 	}
 	if *b.refs > 1 {
-		b.data = append([]byte(nil), b.data...)
 		*b.refs--
-		b.refs = new(int)
+		refs := initRefs
+		*b = COWBuffer{
+			data: append([]byte(nil), b.data...),
+			refs: &refs,
+		}
 	}
 
 	b.data[index] = value
