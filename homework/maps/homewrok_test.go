@@ -18,20 +18,23 @@ type Node struct {
 
 type OrderedMap struct {
 	root *Node
+	size int
 }
 
 func NewOrderedMap() OrderedMap {
-	return OrderedMap{
-		root: nil,
-	}
+	return OrderedMap{}
 }
 
 func (m *OrderedMap) Insert(key, value int) {
 	if m.root == nil {
 		m.root = &Node{key: key, value: value}
+		m.size++
 		return
 	}
-	insert(m.root, key, value)
+	_, added := insert(m.root, key, value)
+	if added {
+		m.size++
+	}
 }
 
 func (m *OrderedMap) Erase(key int) {
@@ -39,6 +42,7 @@ func (m *OrderedMap) Erase(key int) {
 		return
 	}
 	erase(m.root, key)
+	m.size--
 }
 
 func (m *OrderedMap) Contains(key int) bool {
@@ -49,10 +53,7 @@ func (m *OrderedMap) Contains(key int) bool {
 }
 
 func (m *OrderedMap) Size() int {
-	if m.root == nil {
-		return 0
-	}
-	return size(m.root)
+	return m.size
 }
 
 func (m *OrderedMap) ForEach(action func(int, int)) {
@@ -71,21 +72,22 @@ func (m *OrderedMap) ForEach(action func(int, int)) {
 	traverse(m.root)
 }
 
-func insert(node *Node, key, value int) *Node {
+func insert(node *Node, key, value int) (*Node, bool) {
 	if node == nil {
-		return &Node{key: key, value: value}
+		return &Node{key: key, value: value}, true
 	}
 	if node.key == key {
 		node.value = value
-		return node
+		return node, false
 	}
+	var added bool
 	if key < node.key {
-		node.left = insert(node.left, key, value)
+		node.left, added = insert(node.left, key, value)
 	} else {
-		node.right = insert(node.right, key, value)
+		node.right, added = insert(node.right, key, value)
 	}
 
-	return node
+	return node, added
 }
 
 func find(node *Node, key int) *Node {
@@ -99,13 +101,6 @@ func find(node *Node, key int) *Node {
 		return find(node.left, key)
 	}
 	return find(node.right, key)
-}
-
-func size(node *Node) int {
-	if node == nil {
-		return 0
-	}
-	return 1 + size(node.left) + size(node.right)
 }
 
 func erase(node *Node, key int) *Node {
