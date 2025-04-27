@@ -41,8 +41,11 @@ func (m *OrderedMap) Erase(key int) {
 	if m.root == nil {
 		return
 	}
-	erase(m.root, key)
-	m.size--
+	node := erase(m.root, key)
+	if node != nil {
+		m.size--
+	}
+
 }
 
 func (m *OrderedMap) Contains(key int) bool {
