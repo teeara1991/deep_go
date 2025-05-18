@@ -33,6 +33,8 @@ func WithName(name string) func(*GamePerson) {
 		if len(name) > 42 {
 			name = name[:42]
 		}
+		//len 41-47 bits
+		person.rest[5] = byte(len(name)&0x7F)<<1 | person.rest[5]&0x01
 		copy(person.name[:], StringToByte(name))
 	}
 }
@@ -147,7 +149,13 @@ func NewGamePerson(options ...Option) GamePerson {
 }
 
 func (p *GamePerson) Name() string {
-	return ByteToString(p.name[:])
+	//len 41-47 bits
+	lenName := int(p.rest[5] >> 1)
+	if lenName == 0 {
+		return ""
+	} else {
+		return ByteToString(p.name[:lenName])
+	}
 }
 
 func (p *GamePerson) X() int {
