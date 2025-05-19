@@ -3,7 +3,6 @@ package main
 import (
 	"testing"
 
-	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 )
@@ -43,7 +42,7 @@ func (c *Container) Resolve(name string) (interface{}, error) {
 	}
 	fun, ok := constructor.(func() interface{})
 	if !ok {
-		return nil, errors.New("constructor isn`t function")
+		return nil, fmt.Errorf("constructor does not implement %T", constructor)
 	}
 
 	return fun(), nil
