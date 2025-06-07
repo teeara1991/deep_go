@@ -15,17 +15,22 @@ func dereferencePtr(addr uintptr) uintptr {
 }
 
 func isVisitedOrNil(curr uintptr, visited *map[uintptr]bool) bool {
-	return curr == 0 || (*visited)[curr]
+	if curr == 0 {
+		return true
+	}
+	if _, ok := (*visited)[curr]; ok {
+		return true
+	}
+
+	return false
 }
 
 func tracePtr(curr uintptr, visited *map[uintptr]bool, result *[]uintptr) {
 	if !isVisitedOrNil(curr, visited) {
 		(*visited)[curr] = true
 		*result = append(*result, curr)
-		next := dereferencePtr(curr)
-		if next != 0 {
-			tracePtr(next, visited, result)
-		}
+		tracePtr(dereferencePtr(curr), visited, result)
+
 	}
 }
 
